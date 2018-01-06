@@ -25,7 +25,7 @@ makeRiddle :: (RowDef, ColDef, HouseDef) -> Riddle
 makeRiddle (rdef, cdef, hdef) = Riddle rdef cdef board where
   size = (length rdef, length cdef)
   board = makeBoard size (zip hdef (repeat House))
-		
+
 solveRiddle :: Riddle -> Riddle
 solveRiddle (Riddle rdef cdef board) = Riddle rdef cdef board'
   where

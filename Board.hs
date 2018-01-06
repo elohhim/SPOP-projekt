@@ -7,6 +7,13 @@ import Rendering
 
 type Coord = (Int, Int)
 data Field = CrossedOut | House | Tank deriving (Eq, Show)
+
+instance Renderable Field
+  where
+    render CrossedOut = "x"
+    render House = "^"
+    render Tank = "O"
+    
 type BoardRow = [Maybe Field]
 type BoardColumn = [Maybe Field]
 type FieldMap = Map.Map Coord Field
@@ -14,7 +21,9 @@ data Board = Board {size :: Coord, fields :: FieldMap} deriving (Show)
 
 instance Renderable Board
   where
-    render = renderBoard
+    render board = unlines (map renderRow (asRows board))
+      where
+        renderRow row = concat (map (maybe "#" render) row)
 
 makeBoard :: Coord -> [(Coord, Field)] -> Board
 makeBoard size fields = Board size (Map.fromList fields)
@@ -44,14 +53,3 @@ fromRows rows = Board size fieldMap
       where
         filterField (_, Nothing) = Nothing
         filterField (c, Just f) = Just (c, f)
-	
-renderBoard :: Board -> String
-renderBoard board = unlines (map renderRow (asRows board))
-
-renderRow :: BoardRow -> String
-renderRow row = concat (map (maybe "#" renderField) row)
-
-renderField :: Field -> String
-renderField CrossedOut = "x"
-renderField House = "^"
-renderField Tank = "O"

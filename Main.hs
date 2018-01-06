@@ -3,6 +3,7 @@ module Main where
 import System.Environment
 
 import Riddle
+import Rendering
 
 -- MAIN
 main :: IO()
@@ -12,7 +13,7 @@ main = do
   putStrLn "Riddle definition loaded from file:"
   putStrLn definition
   let riddle = makeRiddle $ parseDefinition definition
-  putStr $ render (solveRiddle riddle)
+  doRender $ solveRiddle riddle
  
 
 loadDefinition :: [String] -> IO String
