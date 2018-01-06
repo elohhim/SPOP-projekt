@@ -1,14 +1,20 @@
 module Board 
-(Board (..), Field (..), makeBoard, renderBoard) where
+(Board (..), Field (..), makeBoard, render, asRows, fromRows) where
 
 import qualified Data.Map as Map
+import Data.Maybe (mapMaybe)
+import Rendering
 
 type Coord = (Int, Int)
-data Field = Grass | House | Tank deriving (Eq, Show)
-type BoardRow = [Maybe Field] -- maybe BoardRow {len :: Int, fields :: Map.Map Int Field}
+data Field = CrossedOut | House | Tank deriving (Eq, Show)
+type BoardRow = [Maybe Field]
 type BoardColumn = [Maybe Field]
 type FieldMap = Map.Map Coord Field
 data Board = Board {size :: Coord, fields :: FieldMap} deriving (Show)
+
+instance Renderable Board
+  where
+    render = renderBoard
 
 makeBoard :: Coord -> [(Coord, Field)] -> Board
 makeBoard size fields = Board size (Map.fromList fields)
@@ -24,16 +30,28 @@ getRow n (Board (rows, cols) fields) = getRow' cols (fieldsInRow n fields)
   where
     getRow' len fields = [Map.lookup (n, col) fields | col <- [0..len-1]]
 
-getRows :: Board -> [BoardRow]
-getRows board = [getRow n board | n <- [0..(fst $ size board)]]
+asRows :: Board -> [BoardRow]
+asRows board = [getRow n board | n <- [0..(fst $ size board)]]
 
+fromRows :: [BoardRow] -> Board
+fromRows rows = Board size fieldMap
+  where
+    size = (length rows, length $ head rows)
+    fieldMap = Map.fromList rowsFields
+    rowsFields = [((r, c), f) | (r, row) <- idxRows, (c, f) <- idxFields row]
+    idxRows = zip [0..] rows 
+    idxFields row = mapMaybe filterField (zip [0..] row)
+      where
+        filterField (_, Nothing) = Nothing
+        filterField (c, Just f) = Just (c, f)
+	
 renderBoard :: Board -> String
-renderBoard board = unlines (map renderRow (getRows board))
+renderBoard board = unlines (map renderRow (asRows board))
 
 renderRow :: BoardRow -> String
 renderRow row = concat (map (maybe "#" renderField) row)
 
 renderField :: Field -> String
-renderField Grass = "x"
+renderField CrossedOut = "x"
 renderField House = "^"
 renderField Tank = "O"

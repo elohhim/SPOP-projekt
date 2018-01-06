@@ -12,7 +12,7 @@ main = do
   putStrLn "Riddle definition loaded from file:"
   putStrLn definition
   let riddle = makeRiddle $ parseDefinition definition
-  putStr $ renderRiddle riddle
+  putStr $ render (solveRiddle riddle)
  
 
 loadDefinition :: [String] -> IO String
