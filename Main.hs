@@ -4,20 +4,18 @@ import System.Environment
 
 import Riddle
 import Rendering
-import Board
-import Field
 
 -- MAIN
 main :: IO()
 main = do
   args <- getArgs
   definition <- loadDefinition args
-  print "Riddle definition loaded from file:"
-  print definition
+  putStrLn "Riddle definition loaded from file:"
+  putStrLn definition
   let riddle = makeRiddle $ parseDefinition definition
-  print "Riddle to solve:" 
+  putStrLn "Riddle to solve:" 
   doRender $ riddle
-  print "Riddle solution:"
+  putStrLn "Riddle solution:"
   doRender $ solve riddle
 
 loadDefinition :: [String] -> IO String
