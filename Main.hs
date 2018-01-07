@@ -12,10 +12,12 @@ main :: IO()
 main = do
   args <- getArgs
   definition <- loadDefinition args
-  putStrLn "Riddle definition loaded from file:"
-  putStrLn definition
+  print "Riddle definition loaded from file:"
+  print definition
   let riddle = makeRiddle $ parseDefinition definition
+  print "Riddle to solve:" 
   doRender $ riddle
+  print "Riddle solution:"
   doRender $ solve riddle
 
 loadDefinition :: [String] -> IO String

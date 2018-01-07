@@ -39,10 +39,11 @@ solve riddle = solve' riddle houses
       where
         emptyParcels = adjacentCoordEmpty h (board riddle)
     solve'' riddle _ [] = riddle
-    solve'' riddle hs (p:ps) = if isStateValid newState 
-                               then solve' newState hs
+    solve'' riddle hs (p:ps) = if isSolved solution
+                               then solution
                                else solve'' riddle hs ps
       where
+        solution = solve' newState hs
         newState = newState' riddle
         newState' (Riddle rdef cdef board) = Riddle rdef cdef newBoard
           where
@@ -56,6 +57,14 @@ isStateValid riddle = rowsValid riddle && rowsValid (transposeRiddle riddle)
       let zipRowsWithDef = zip (asRows board) rdef
       in  and $ [rowValid r | r <- zipRowsWithDef]
     rowValid (row, tankCount) = countFields Tank row <= tankCount
+    
+isSolved :: Riddle -> Bool
+isSolved riddle = rowsSolved riddle && rowsSolved (transposeRiddle riddle)
+  where
+    rowsSolved (Riddle rdef _ board) =
+      let zipRowsWithDef = zip (asRows board) rdef
+      in  and $ [rowSolved r | r <- zipRowsWithDef]
+    rowSolved (row, tankCount) = countFields Tank row == tankCount
     
 transposeRiddle :: Riddle -> Riddle
 transposeRiddle (Riddle rdef cdef b) = Riddle cdef rdef (transposeBoard b)
