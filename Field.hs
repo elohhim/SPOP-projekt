@@ -15,18 +15,23 @@ type FieldAssociationList = [((Int, Int), Field)]
 class FieldContainer a
   where
     getFields :: a -> FieldMap
+    filterFields :: Field -> a -> FieldMap
+    filterFields f c = M.filter (==f) (getFields c)
     countFields :: Field -> a -> Int
-    countFields f c = M.size $ M.filter (==f) (getFields c)
-
+    countFields f c = M.size $ filterFields f c
+    findFields :: Field -> a -> FieldAssociationList
+    findFields f c = M.toList $ filterFields f c
+    fieldEmpty :: (Int, Int) -> a -> Bool
+    fieldEmpty k c = M.notMember k (getFields c)
 
 data Field = Grass | House | Tank deriving (Eq, Show)
 
 instance Renderable Field
   -- need to run "chcp.com 65001" in cmd to enable showing unicode symbols
   where
-    render Grass = "\x25A8" -- stiped square
-    render House = "\x2302" -- unicode home
-    render Tank = "\x26AB" -- black circle
-    
+    render field = case field of
+        Grass -> "#"
+        House -> "⌂"
+        Tank -> "O"
 transposeMap :: M.Map (Int, Int) a -> M.Map (Int, Int) a
 transposeMap = M.mapKeys swap

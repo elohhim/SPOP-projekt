@@ -4,6 +4,8 @@ import System.Environment
 
 import Riddle
 import Rendering
+import Board
+import Field
 
 -- MAIN
 main :: IO()
@@ -14,9 +16,7 @@ main = do
   putStrLn definition
   let riddle = makeRiddle $ parseDefinition definition
   doRender $ riddle
-  doRender $ solveRiddle riddle
-  print $ isValid (solveRiddle riddle)
- 
+  doRender $ solve riddle
 
 loadDefinition :: [String] -> IO String
 loadDefinition [] =  getPath >>= readFile where

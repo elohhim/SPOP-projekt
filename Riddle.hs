@@ -1,8 +1,7 @@
 module Riddle 
 ( Riddle (..)
 , makeRiddle
-, solveRiddle
-, isValid) where
+, solve) where
 
 import Board
 import Field
@@ -30,11 +29,28 @@ makeRiddle (rdef, cdef, hdef) = Riddle rdef cdef board
     rows = length rdef
     cols = length cdef
 
-solveRiddle :: Riddle -> Riddle
-solveRiddle = transposeRiddle
+solve :: Riddle -> Riddle
+solve riddle = solve' riddle houses
+  where
+    houses = map fst (findFields House (board riddle))
+    solve' :: Riddle -> [(Int, Int)] -> Riddle
+    solve' riddle [] = riddle
+    solve' riddle (h:hs) = solve'' riddle hs emptyParcels
+      where
+        emptyParcels = adjacentCoordEmpty h (board riddle)
+    solve'' riddle _ [] = riddle
+    solve'' riddle hs (p:ps) = if isStateValid newState 
+                               then solve' newState hs
+                               else solve'' riddle hs ps
+      where
+        newState = newState' riddle
+        newState' (Riddle rdef cdef board) = Riddle rdef cdef newBoard
+          where
+            newBoard = buildTank p board
     
-isValid :: Riddle -> Bool
-isValid riddle = rowsValid riddle && rowsValid (transposeRiddle riddle)
+    
+isStateValid :: Riddle -> Bool
+isStateValid riddle = rowsValid riddle && rowsValid (transposeRiddle riddle)
   where
     rowsValid (Riddle rdef _ board) =
       let zipRowsWithDef = zip (asRows board) rdef
