@@ -1,3 +1,4 @@
+-- Provides class and monad for representing riddle board in console.
 module Rendering where
 
 class Renderable a

@@ -5,7 +5,7 @@ import System.Environment
 import Riddle
 import Rendering
 
--- MAIN
+-- MAIN - entry point for application
 main :: IO()
 main = do
   args <- getArgs
@@ -18,6 +18,7 @@ main = do
   putStrLn "Riddle solution:"
   doRender $ solve riddle
 
+-- Prompt user for path and read file containing riddle definition.
 loadDefinition :: [String] -> IO String
 loadDefinition [] =  getPath >>= readFile where
   getPath = do
@@ -25,6 +26,8 @@ loadDefinition [] =  getPath >>= readFile where
     getLine
 loadDefinition (a:_) = readFile a
 
+-- Parse content of file with riddle definition. Returns data in form compatible
+-- with makeRiddle method.
 parseDefinition :: String -> ([Int], [Int], [(Int,Int)])
 parseDefinition d = parseDefinition' $ lines d where
   parseDefinition' (rline:cline:hline:_) =
