@@ -1,7 +1,7 @@
 -- Provides data type and methods for manipulating riddle board  as rows
 module Row 
 ( Row(..)
-) where
+, plantGrass) where
 
 import qualified Data.Map as M
 import Data.Maybe (mapMaybe)
@@ -17,7 +17,8 @@ data Row = Row { number :: Int
 
 instance Renderable Row
   where
-    render row = concat $ map (maybe "\x25A1" render) (asList row)
+    --render row = concat $ map (maybe "\x25A1" render) (asList row)
+    render row = concat $ map (maybe "x" render) (asList row)
     
 instance FieldContainer Row
   where
@@ -35,3 +36,12 @@ fromList n fs = Row n (length fs) fieldMap
     fieldMap = M.fromList $ mapMaybe assocciation (zip [0..] fs)
     assocciation (c, Just f) = Just ((n,c), f)
     assocciation (_, Nothing) = Nothing
+
+-- Set all empty fields to Grass.
+plantGrass :: Row -> Row
+plantGrass row = fromList (number row) (plantGrass' (asList row)) 
+  where
+    plantGrass' [] = []
+    plantGrass' (f:fs) = if f == Nothing
+                         then (Just Grass):(plantGrass' fs)
+                         else f:(plantGrass' fs)

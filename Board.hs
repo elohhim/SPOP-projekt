@@ -97,8 +97,19 @@ adjacentCoordEmpty coord board = filterEmpty (adjacentCoord coord board)
 
 -- Sets field of given coordinates to Tank and then cross-out (sets to Grass)
 -- all empty fields which surround it.
-buildTank :: (Int, Int) -> Board -> Board
-buildTank coord board = surroundTank . placeTank $ board
+buildTank :: (Int, Int) -> (Int, Int) -> Board -> Board
+buildTank coord coordHouse board = surroundTank . placeTank $ board
   where
-    placeTank b = setField coord Tank b
     surroundTank b = setFields (adjacentCoordFull coord b) Grass b
+    placeTank b = setField coord tank b
+      where
+        -- Represent which House Tank is connected with.
+        tank = if xHouse > x && yHouse == y then TankDown
+               else if xHouse < x && yHouse == y then TankUp
+               else if xHouse == x && yHouse > y then TankRight
+               else TankLeft
+          where
+            xHouse = fst coordHouse
+            x = fst coord
+            yHouse = snd coordHouse
+            y = snd coord

@@ -23,6 +23,13 @@ class FieldContainer a
     filterFields f c = M.filter (==f) (getFields c)
     countFields :: Field -> a -> Int
     countFields f c = M.size $ filterFields f c
+    countTanks :: a -> Int
+    countTanks c = countTanksUp + countTanksDown + countTanksLeft + countTanksRight
+      where
+        countTanksUp = countFields TankUp c
+        countTanksDown = countFields TankDown c
+        countTanksLeft = countFields TankLeft c
+        countTanksRight = countFields TankRight c
     findFields :: Field -> a -> FieldAssociationList
     findFields f c = M.toList $ filterFields f c
     fieldEmpty :: (Int, Int) -> a -> Bool
@@ -30,14 +37,19 @@ class FieldContainer a
 
 -- Data type representing riddle board field.
 -- The Grass constructor represents field which can't contain Tank.
-data Field = Grass | House | Tank deriving (Eq, Show)
+data Field = Grass | House | TankUp | TankDown | TankLeft | TankRight deriving (Eq, Show)
 
 instance Renderable Field
   -- need to run "chcp.com 65001" in cmd to enable showing unicode symbols
   where
     render field = case field of
         Grass -> "#"
-        House -> "⌂"
-        Tank -> "O"
+        --House -> "⌂"
+        House -> "H"
+        --Tank -> "O"
+        TankUp -> "^"
+        TankDown -> "v"
+        TankLeft -> "<"
+        TankRight -> ">"
 transposeMap :: M.Map (Int, Int) a -> M.Map (Int, Int) a
 transposeMap = M.mapKeys swap

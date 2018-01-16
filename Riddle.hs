@@ -7,6 +7,7 @@ module Riddle
 import Board
 import Field
 import Rendering
+import qualified Row as R
 
 -- Data type representing architects riddle
 data Riddle = Riddle { rowDef :: [Int]
@@ -39,24 +40,25 @@ makeRiddle (rdef, cdef, hdef) = Riddle rdef cdef board
 -- current step. If there is no available fields left algorithm steps back to
 -- previous step processing another house.
 solve :: Riddle -> Riddle
-solve riddle = solve' riddle houses
+solve riddle = solve' griddle houses
   where
+    griddle = addGrass riddle
     houses = map fst (findFields House (board riddle))
     solve' :: Riddle -> [(Int, Int)] -> Riddle
     solve' riddle [] = riddle
-    solve' riddle (h:hs) = solve'' riddle hs emptyParcels
+    solve' riddle (h:hs) = solve'' riddle hs emptyParcels h
       where
         emptyParcels = adjacentCoordEmpty h (board riddle)
-    solve'' riddle _ [] = riddle
-    solve'' riddle hs (p:ps) = if isSolved solution
-                               then solution
-                               else solve'' riddle hs ps
+    solve'' riddle _ [] _ = riddle
+    solve'' riddle hs (p:ps) h = if isSolved solution
+                                 then solution
+                                 else solve'' riddle hs ps h
       where
         solution = solve' newState hs
         newState = newState' riddle
-        newState' (Riddle rdef cdef board) = Riddle rdef cdef newBoard
+        newState' (Riddle rdef cdef board) = addGrass (Riddle rdef cdef newBoard)
           where
-            newBoard = buildTank p board
+            newBoard = buildTank p h board
 
 -- Checks if current Riddle state is valid            
 isStateValid :: Riddle -> Bool
@@ -66,7 +68,7 @@ isStateValid riddle = rowsValid riddle && rowsValid (transposeRiddle riddle)
       let zipRowsWithDef = zip (asRows board) rdef
       in  and $ [rowValid r | r <- zipRowsWithDef]
     -- row is considered 
-    rowValid (row, tankCount) = countFields Tank row <= tankCount
+    rowValid (row, tankCount) = countTanks row <= tankCount
 
 -- Checks if current Riddle is solved. We don't need to check if every House is
 -- connected to Tank as our algorithm is not producing such states.
@@ -77,9 +79,24 @@ isSolved riddle = rowsSolved riddle && rowsSolved (transposeRiddle riddle)
       let zipRowsWithDef = zip (asRows board) rdef
       in  and $ [rowSolved r | r <- zipRowsWithDef]
     -- we consider Row solved when it contain exact amount of Tanks as in definition
-    rowSolved (row, tankCount) = countFields Tank row == tankCount
+    rowSolved (row, tankCount) = countTanks row == tankCount
 
 -- We use rows when analyzing riddle so to operate on columns way of transposing
 -- whole riddle is needed.    
 transposeRiddle :: Riddle -> Riddle
 transposeRiddle (Riddle rdef cdef b) = Riddle cdef rdef (transposeBoard b)
+
+-- Set to Grass all fields in rows and columns that already satisfy number of tanks in them.
+addGrass :: Riddle -> Riddle
+addGrass riddle = addGrass' triddle
+  where
+    triddle = transposeRiddle (addGrass' (transposeRiddle riddle))
+    addGrass' (Riddle rdef cdef board) = Riddle rdef cdef newBoard
+      where
+        newBoard = fromRows (addGrassRows (asRows board) rdef)
+          where
+            addGrassRows [] _ = []
+            addGrassRows (r:rs) (rd:rds) = if rowSolved r rd
+                                       then (R.plantGrass r) : (addGrassRows rs rds)
+                                       else r : (addGrassRows rs rds)
+            rowSolved row tankCount = countTanks row == tankCount
