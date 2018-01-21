@@ -12,7 +12,11 @@ main = do
   definition <- loadDefinition args
   putStrLn "Riddle definition loaded from file:"
   putStrLn definition
-  let riddle = makeRiddle $ parseDefinition definition
+  let parsedDef = parseDefinition definition
+  if validateDefinition parsedDef
+    then putStrLn "Definition is VALID."
+    else error "Definition is INVALID!"
+  let riddle = makeRiddle parsedDef 
   putStrLn "Riddle to solve:" 
   doRender $ riddle
   putStrLn "Riddle solution:"
