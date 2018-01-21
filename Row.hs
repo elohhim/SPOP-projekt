@@ -1,6 +1,7 @@
 -- Provides data type and methods for manipulating riddle board  as rows
 module Row 
 ( Row(..)
+, asList
 , plantGrass) where
 
 import qualified Data.Map as M

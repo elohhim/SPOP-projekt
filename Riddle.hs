@@ -46,8 +46,11 @@ solve riddle = solve' griddle houses
     houses = map fst (findFields House (board riddle))
     solve' :: Riddle -> [(Int, Int)] -> Riddle
     solve' riddle [] = riddle
-    solve' riddle (h:hs) = solve'' riddle hs emptyParcels h
+    solve' riddle (h:hs) = if mustParcels == []
+                           then solve'' riddle hs emptyParcels h
+                           else solve'' riddle hs mustParcels h
       where
+        mustParcels = getMustCoords (board riddle) (rowDef riddle) (colDef riddle)
         emptyParcels = adjacentCoordEmpty h (board riddle)
     solve'' riddle _ [] _ = riddle
     solve'' riddle hs (p:ps) h = if isSolved solution
