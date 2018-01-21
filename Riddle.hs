@@ -2,6 +2,7 @@
 module Riddle 
 ( Riddle (..)
 , makeRiddle
+, validateDefinition
 , solve) where
 
 import Board
@@ -24,6 +25,13 @@ instance Renderable Riddle
         boardLines = map render (asRows b)
         rowLine (rowDef, boardLine) = show rowDef ++ " " ++ boardLine
 
+-- Method validating given definition, purely for our convenience when testing
+validateDefinition :: ([Int], [Int], [(Int, Int)]) -> Bool
+validateDefinition (rdef, cdef, hdef) = rowColEq && houseTankEq where
+  rowColEq = sum rdef == sum cdef
+  houseTankEq = sum rdef == length hdef
+
+        
 -- Factory method for crating Riddle object from definition
 makeRiddle :: ([Int], [Int], [(Int, Int)]) -> Riddle
 makeRiddle (rdef, cdef, hdef) = Riddle rdef cdef board 
