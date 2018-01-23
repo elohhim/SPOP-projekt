@@ -55,7 +55,7 @@ makeRiddle (rdef, cdef, hdef) = Riddle rdef cdef board
 solve :: Riddle -> Riddle
 solve riddle = solve' griddle houses
   where
-    griddle = addGrassIfNoHouse (addGrass riddle) houses
+    griddle = addGrass riddle
     houses = map fst (findFields House (board riddle))
     solve' :: Riddle -> [(Int, Int)] -> Riddle
     solve' riddle [] = riddle
@@ -69,9 +69,8 @@ solve riddle = solve' griddle houses
       where
         solution = solve' newState hs
         newState = newState' riddle
-        newState' (Riddle rdef cdef board) = addGrassIfNoHouse (addGrass newRiddle) hs
+        newState' (Riddle rdef cdef board) = addGrass (Riddle rdef cdef newBoard)
           where
-            newRiddle = Riddle rdef cdef newBoard
             newBoard = buildTank p h board
 
 
