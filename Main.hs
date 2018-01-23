@@ -19,8 +19,15 @@ main = do
   let riddle = makeRiddle parsedDef 
   putStrLn "Riddle to solve:" 
   doRender $ riddle
+  putStrLn "Provide version of algorithm to be used (1 or not 1):"
+  algVersion <- getChar
+  if algVersion == '1' 
+    then putStrLn "Algorithm chosen: 1"
+    else putStrLn "Algorithm chosen: 2"
   putStrLn "Riddle solution:"
-  doRender $ solve riddle
+  if algVersion == '1'
+    then doRender $ solve riddle
+    else doRender $ solve2 riddle
 
 -- Prompt user for path and read file containing riddle definition.
 loadDefinition :: [String] -> IO String
@@ -36,7 +43,3 @@ parseDefinition :: String -> ([Int], [Int], [(Int,Int)])
 parseDefinition d = parseDefinition' $ lines d where
   parseDefinition' (rline:cline:hline:_) =
     (read rline, read cline, read hline)
-
-
-
-

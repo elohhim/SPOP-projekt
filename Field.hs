@@ -34,6 +34,10 @@ class FieldContainer a
     findFields f c = M.toList $ filterFields f c
     fieldEmpty :: (Int, Int) -> a -> Bool
     fieldEmpty k c = M.notMember k (getFields c)
+    isField :: a -> Field -> (Int, Int) -> Bool
+    isField c f k = if fieldEmpty k c 
+                    then False
+                    else ((getFields c) M.! k) == f
 
 -- Data type representing riddle board field.
 -- The Grass constructor represents field which can't contain Tank.

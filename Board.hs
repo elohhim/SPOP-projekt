@@ -10,11 +10,12 @@ module Board
 , setFields
 , buildTank
 , adjacentCoordEmpty
+, adjacentCoordHouse
 , getMustCoords) where
 
 import qualified Data.Map as M
 import Data.Tuple (swap)
-import Data.List (sort)
+import Data.List (sort, nub)
 
 import Rendering
 import Field
@@ -96,6 +97,12 @@ adjacentCoordEmpty coord board = filterEmpty (adjacentCoord coord board)
   where
     filterEmpty =  filter (`fieldEmpty` board)
 
+-- Return coordinates of houses adjacent to field of given coordintes.
+adjacentCoordHouse :: (Int, Int) -> Board -> [(Int, Int)]
+adjacentCoordHouse coord board = filterHouse (adjacentCoord coord board)
+  where
+    filterHouse = filter (isField board House)
+
 -- Sets field of given coordinates to Tank and then cross-out (sets to Grass)
 -- all empty fields which surround it.
 buildTank :: (Int, Int) -> (Int, Int) -> Board -> Board
@@ -114,36 +121,21 @@ buildTank coord coordHouse board = surroundTank . placeTank $ board
             x = fst coord
             yHouse = snd coordHouse
             y = snd coord
-
-{-
-getMustCoords :: [(Int, Int)] -> [Int] -> [Int] -> [(Int, Int)]
-getMustCoords [] _ _ = []
-getMustCoords coords rdef cdef = getMustCoordsX coords nrows rdef ++ getMustCoordsY coords ncols cdef
-  where
-    nrows = [0..(length rdef) - 1]
-    ncols = [0..(length cdef) - 1]
-
-    getMustCoordsX :: [(Int, Int)] -> [Int] -> [Int] -> [(Int, Int)]
-    getMustCoordsX coords (row:rows) (r:rs) = getMustCoordsRow coords row r ++ getMustCoordsX coords rows rs
-    getMustCoordsRow coords row r = 
-      let coordsInRow = [coord | coord <- coords, fst coord == row]
-      in if length coordsInRow == r
-         then coordsInRow
-         else []
-
-    getMustCoordsY :: [(Int, Int)] -> [Int] -> [Int] -> [(Int, Int)] 
-    getMustCoordsY coords (col:cols) (c:cs) = [] 
--}        
-       
+      
+-- Return coordinates list of fields in which a tank must be placed, 
+-- because the number of empty fields in a row is equal to the remaining number of tanks.     
 getMustCoords :: Board -> [Int] -> [Int] -> [(Int, Int)]
-getMustCoords board rdef cdef = getMustCoordsX ++ getMustCoordsY
+getMustCoords board rdef cdef = nub (getMustCoordsX ++ getMustCoordsY)
   where
     getMustCoordsX = getMustCoords' (asRows board) rdef
-    getMustCoordsY = getMustCoords' (asRows (transposeBoard board)) cdef
+    getMustCoordsY = swapAll (getMustCoords' (asRows (transposeBoard board)) cdef)
     getMustCoords' :: [R.Row] -> [Int] -> [(Int, Int)]
     getMustCoords' [] _ = []
-    getMustCoords' (r:rs) (rd:rds) = if length emptyFields == rd
+    getMustCoords' (r:rs) (rd:rds) = if length emptyFields == (rd - countTanks r)
                                      then emptyFields ++ getMustCoords' rs rds
                                      else getMustCoords' rs rds
       where
-        emptyFields = filter (`fieldEmpty` r) (map fst (M.toList (getFields r)))
+        emptyFields = filter (`fieldEmpty` r) coords
+        coords = [(R.number r, y) | y <- [0..(R.size r)-1]]
+    swapAll [] = []
+    swapAll (c:cs) = swap c : swapAll cs 
