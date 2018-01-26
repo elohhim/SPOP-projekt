@@ -18,8 +18,9 @@ data Row = Row { number :: Int
 
 instance Renderable Row
   where
-    --render row = concat $ map (maybe "\x25A1" render) (asList row)
-    render row = concat $ map (maybe "x" render) (asList row)
+    render row = concat $ map (maybe char render) (asList row)
+      where
+        char = " "--"\x25A1"
     
 instance FieldContainer Row
   where

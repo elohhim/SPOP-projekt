@@ -47,13 +47,11 @@ instance Renderable Field
   -- need to run "chcp.com 65001" in cmd to enable showing unicode symbols
   where
     render field = case field of
-        Grass -> "#"
-        --House -> "⌂"
-        House -> "H"
-        --Tank -> "O"
-        TankUp -> "^"
-        TankDown -> "v"
-        TankLeft -> "<"
-        TankRight -> ">"
+        Grass -> "\x25A1"
+        House -> "⌂"
+        TankUp -> "↑"
+        TankDown -> "↓"
+        TankLeft -> "←"
+        TankRight -> "→"
 transposeMap :: M.Map (Int, Int) a -> M.Map (Int, Int) a
 transposeMap = M.mapKeys swap

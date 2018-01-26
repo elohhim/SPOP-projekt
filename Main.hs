@@ -20,14 +20,17 @@ main = do
   putStrLn "Riddle to solve:" 
   doRender $ riddle
   putStrLn "Provide version of algorithm to be used (1 or not 1):"
-  algVersion <- getChar
-  if algVersion == '1' 
+  algVersion <- getLine
+  if algVersion == "1" 
     then putStrLn "Algorithm chosen: 1"
     else putStrLn "Algorithm chosen: 2"
   putStrLn "Riddle solution:"
-  if algVersion == '1'
-    then doRender $ solve riddle
-    else doRender $ solve2 riddle
+  let solution = if algVersion == "1" then solve riddle else solve2 riddle
+  doRender solution
+  putStrLn "Provide path to dump solution:"
+  dumpPath <- getLine
+  writeFile dumpPath (render solution)
+  
 
 -- Prompt user for path and read file containing riddle definition.
 loadDefinition :: [String] -> IO String
