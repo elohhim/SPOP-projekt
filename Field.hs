@@ -48,12 +48,15 @@ instance Renderable Field
   where
     render field = case field of
         Grass -> "#"
-        --House -> "⌂"
-        House -> "H"
-        --Tank -> "O"
-        TankUp -> "^"
-        TankDown -> "v"
-        TankLeft -> "<"
-        TankRight -> ">"
+        House -> "⌂"
+        TankUp -> "↑"
+        TankDown -> "↓"
+        TankLeft -> "←"
+        TankRight -> "→"
+        --House -> "H"
+        --TankUp -> "^"
+        --TankDown -> "v"
+        --TankLeft -> "<"
+        --TankRight -> ">"
 transposeMap :: M.Map (Int, Int) a -> M.Map (Int, Int) a
 transposeMap = M.mapKeys swap
